@@ -6,7 +6,6 @@ export default function TodoList() {
   const [showActive, setShowActive] = useState(false);
   const [activeTodos, setActiveTodos] = useState([]);
   const [visibleTodos, setVisibleTodos] = useState([]);
-  const [footer, setFooter] = useState(null);
 
   console.log('rendered')
   useEffect(() => {
@@ -14,16 +13,9 @@ export default function TodoList() {
   }, [todos]);
 
   useEffect(() => {
+    console.log("useEffect setVisibleTodos")
     setVisibleTodos(showActive ? activeTodos : todos);
   }, [showActive, todos, activeTodos]);
-
-  useEffect(() => {
-    setFooter(
-      <footer>
-        {activeTodos.length} todos left
-      </footer>
-    );
-  }, [activeTodos]);
 
   return (
     <>
@@ -43,7 +35,9 @@ export default function TodoList() {
           </li>
         ))}
       </ul>
-      {footer}
+      <footer>
+        {activeTodos.length} todos left
+      </footer>
     </>
   );
 }
