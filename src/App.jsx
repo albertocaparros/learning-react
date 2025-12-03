@@ -1,19 +1,25 @@
-import { useState, memo } from 'react';
+import { useState } from 'react';
 import { initialTodos, createTodo } from './todos.js';
 
 export default function TodoList() {
   const [todos, setTodos] = useState(initialTodos);
   console.log('rendered');
 
+  function toggleTodo(id) {
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  }
+
   return (
     <>    
       <NewTodo onAdd={newTodo => setTodos([...todos, newTodo])} />
-      <List todos={todos} />
+      <List todos={todos} onToggleTodo={toggleTodo} />
     </>
   );
 }
 
-function List({ todos }) {
+function List({ todos, onToggleTodo }) {
   console.log("render List");
 
   const [showActive, setShowActive] = useState(false);
@@ -22,7 +28,7 @@ function List({ todos }) {
   const visibleTodos = showActive ? activeTodos() : todos;
 
   return (
-      <>
+      <section>
         <label>
           <input
             type="checkbox"
@@ -33,13 +39,16 @@ function List({ todos }) {
         </label>
         <ul>
           {visibleTodos.map(todo => (
-            <li key={todo.id}>
+            <li 
+              key={todo.id}
+              onClick={() => onToggleTodo(todo.id)}
+            >
               {todo.completed ? <s>{todo.text}</s> : todo.text}
             </li>
           ))}
         </ul>
         <Footer count={activeTodos().length} />
-      </>
+      </section>
     )
 }
 
