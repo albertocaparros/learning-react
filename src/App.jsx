@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { initialTodos, createTodo } from './todos.js';
 
 export default function TodoList() {
@@ -38,12 +38,16 @@ function List({ todos }) {
             </li>
           ))}
         </ul>
-        <footer>
-          {activeTodos().length} todos left
-        </footer>
+        <Footer count={activeTodos().length} />
       </>
     )
 }
+
+function Footer({ count }) {
+  console.log("Render footer");
+  return <footer>{count} todos left</footer>;
+};
+
 
 function NewTodo({ onAdd }) {
   console.log("Render NewTodo");
