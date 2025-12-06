@@ -1,73 +1,66 @@
-import { useState, useCallback, memo } from 'react';
+import { useState } from 'react';
 import { initialTodos, createTodo } from './todos.js';
 
 export default function TodoList() {
-  const [todos, setTodos] = useState(initialTodos);
-  const [showActive, setShowActive] = useState(false);
+  console.log('rendered');
 
-  const toggleTodo = useCallback((id) => {
-    setTodos(prev => prev.map(todo =>
+  const [todos, setTodos] = useState(initialTodos);  
+  const activeTodos = todos.filter(todo => !todo.completed);
+
+  function toggleTodo(id) {
+    setTodos(todos.map(todo =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
-  }, []); 
+  }
 
-  const handleShowActiveChange = useCallback((checked) => {
-    setShowActive(checked);
-  }, []); 
+  function addTodo(newTodo) {
+    setTodos([...todos, newTodo])
+  }
 
   return (
-    <>
-      <NewTodo onAdd={newTodo => setTodos([...todos, newTodo])} />
-      <List
-        todos={todos}
-        showActive={showActive}
-        onToggleTodo={toggleTodo}
-        onShowActiveChange={handleShowActiveChange}
-      />
+    <>    
+      <NewTodo onAdd={addTodo} />
+      <List todos={todos} activeTodos={activeTodos} onToggleTodo={toggleTodo} />
+      <Footer count={activeTodos.length} />
     </>
   );
 }
 
-const List = memo(function List({ todos, showActive, onToggleTodo, onShowActiveChange }) {
-  console.log("List rendered"); 
+function List({ todos, activeTodos, onToggleTodo }) {
+  console.log("render List");
 
-  const activeCount = todos.filter(t => !t.completed).length;
-  const visibleTodos = showActive ? todos.filter(t => !t.completed) : todos;
+  const [showActive, setShowActive] = useState(false);
+  const showTodos = showActive ? activeTodos : todos;
 
   return (
-    <section>
-      <label>
-        <input
-          type="checkbox"
-          checked={showActive}
-          onChange={e => onShowActiveChange(e.target.checked)}
-        />
-        Show only active todos
-      </label>
+      <section>
+        <label>
+          <input
+            type="checkbox"
+            checked={showActive}
+            onChange={e => setShowActive(e.target.checked)}
+          />
+          Show only active todos
+        </label>
+        <ul>
+          {showTodos.map(todo => (
+            <li 
+              key={todo.id}
+              onClick={() => onToggleTodo(todo.id)}
+            >
+              {todo.completed ? <s>{todo.text}</s> : todo.text}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+}
 
-      <ul>
-        {visibleTodos.map(todo => (
-          <TodoItem key={todo.id} todo={todo} onToggle={onToggleTodo} />
-        ))}
-      </ul>
-
-      <Footer count={activeCount} />
-    </section>
-  );
-});
-
-const TodoItem = memo(function TodoItem({ todo, onToggle }) {
-  return (
-    <li onClick={() => onToggle(todo.id)} style={{cursor: 'pointer'}}>
-      {todo.completed ? <s>{todo.text}</s> : todo.text}
-    </li>
-  );
-});
-
-const Footer = memo(function Footer({ count }) {
-  console.log("Footer rendered");
+function Footer({ count }) {
+  console.log("Render footer");
   return <footer>{count} todos left</footer>;
-});
+};
+
 
 function NewTodo({ onAdd }) {
   console.log("Render NewTodo");
